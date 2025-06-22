@@ -3,13 +3,13 @@ import imagekit from "../configs/imageKit.js";
 import Blog from "../models/Blog.js";
 export const addBlog = async (req, res) => {
   try {
-    const { title, subTitle, description, catgory, isPublished } = JSON.parse(
+    const { title, subTitle, description, category, isPublished } = JSON.parse(
       req.body.blog
     );
     const imageFile = req.file;
 
     // Checking if all fields are present
-    if (!title || !description || !catgory || !imageFile) {
+    if (!title || !description || !category || !imageFile || !isPublished) {
       return res.json({
         success: false,
         message: "Missing required fields",
