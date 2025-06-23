@@ -1,6 +1,8 @@
 import fs from "fs";
 import imagekit from "../configs/imageKit.js";
 import Blog from "../models/Blog.js";
+
+// Add Blog Controller
 export const addBlog = async (req, res) => {
   try {
     const { title, subTitle, description, category, isPublished } = JSON.parse(
@@ -48,5 +50,71 @@ export const addBlog = async (req, res) => {
     });
   } catch (error) {
     res.json({ success: false, message: error.message });
+  }
+};
+
+// Get all blog controller'
+export const getAllBlog = async (req, res) => {
+  try {
+    const blogs = await Blog.find({ isPublished: true });
+    res.json({
+      success: true,
+      blogs,
+    });
+  } catch (error) {
+    res.json({
+      success: false,
+      message: "Error in fetch all blogs API",
+      error,
+    });
+  }
+};
+
+// Get individual blog by ID
+export const getBlogByID = async (req, res) => {
+  try {
+    const { blogId } = req.params;
+    const blog = await Blog.findById(blogId);
+    if (!blog) {
+      return res.json({
+        success: false,
+        message: "Blog not found",
+      });
+    }
+    res.json({ success: true, blog });
+  } catch (error) {
+    res.json({ success: false, message: error.message });
+  }
+};
+
+// Delete blog controller
+export const deleteBlogById = async (req, res) => {
+  try {
+    const { id } = req.body;
+    await Blog.findByIdAndDelete(id);
+    res.json({
+      success: true,
+      message: "Blog deleted successfully",
+    });
+  } catch (error) {
+    res.json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+// toggle publish controller
+export const togglePublish = async (req, res) => {
+  try {
+    const { id } = req.body;
+    const blog = await Blog.findById(id);
+    blog.isPublished = !blog.isPublished;
+    await blog.save();
+  } catch (error) {
+    res.json({
+      success: false,
+      message: error.message,
+    });
   }
 };
