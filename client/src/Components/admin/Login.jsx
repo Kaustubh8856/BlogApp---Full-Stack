@@ -1,10 +1,25 @@
 import React, { useState } from "react";
+import { useAppContext } from "../../Context/AppContext";
+import toast from "react-hot-toast";
 
 const Login = () => {
+  const { axios, setToken } = useAppContext();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    try {
+      const { data } = await axios.post("/api/admin/login", { email, password });
+      if (data.success) {
+        setToken(data.token);
+        localStorage.setItem("token", data.token);
+        axios.defaults.headers.common["Authorization"] = data.token;
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error(error.message);
+    }
   };
   return (
     <div className="flex items-center justify-center h-screen">
@@ -14,14 +29,9 @@ const Login = () => {
             <h1 className="text-3xl font-bold">
               <span className="text-primary">Admin</span> Login.
             </h1>
-            <p className="font-light">
-              Enter your credentials to axcess the admin panel.
-            </p>
+            <p className="font-light">Enter your credentials to axcess the admin panel.</p>
           </div>
-          <form
-            onSubmit={handleSubmit}
-            className="mt-6 w-full sm:max-w-md text-gray-600"
-          >
+          <form onSubmit={handleSubmit} className="mt-6 w-full sm:max-w-md text-gray-600">
             <div className="flex flex-col">
               <label>Email</label>
               <input
@@ -44,10 +54,7 @@ const Login = () => {
                 required
               />
             </div>
-            <button
-              type="submit"
-              className="w-full py-3 font-medium bg-primary text-white rounded cursor-pointer hover:bg-primary/90 transition-all"
-            >
+            <button type="submit" className="w-full py-3 font-medium bg-primary text-white rounded cursor-pointer hover:bg-primary/90 transition-all">
               Submit
             </button>
           </form>
