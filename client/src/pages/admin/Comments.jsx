@@ -1,12 +1,20 @@
 import React, { useEffect, useState } from "react";
-import { comments_data } from "../../assets/assets";
 import CommentTableItem from "../../Components/admin/CommentTableItem";
+import { useAppContext } from "../../Context/AppContext";
+import toast from "react-hot-toast";
 
 const Comments = () => {
   const [comments, setComments] = useState([]);
   const [filter, setFilter] = useState("Not Approved");
+  const { axios } = useAppContext();
   const fetchComments = async () => {
-    setComments(comments_data);
+    try {
+      const { data } = await axios.get("/api/admin/comments");
+      data.success ? setComments(data.comments) : toast(data.message);
+      console.log(data);
+    } catch (error) {
+      toast.error(error.message);
+    }
   };
 
   useEffect(() => {
@@ -20,17 +28,13 @@ const Comments = () => {
         <div className="flex gap-4">
           <button
             onClick={() => setFilter("Approved")}
-            className={`shadow-custom-sm border rounded-full px-4 py-1 cursor-pointer text-xs ${
-              filter === "Approved" ? "text-primary" : "text-gray-700"
-            }`}
+            className={`shadow-custom-sm border rounded-full px-4 py-1 cursor-pointer text-xs ${filter === "Approved" ? "text-primary" : "text-gray-700"}`}
           >
             Approved
           </button>
           <button
             onClick={() => setFilter("Not Approved")}
-            className={`shadow-custom-sm border rounded-full px-4 py-1 cursor-pointer text-xs ${
-              filter === "Not Approved" ? "text-primary" : "text-gray-700"
-            }`}
+            className={`shadow-custom-sm border rounded-full px-4 py-1 cursor-pointer text-xs ${filter === "Not Approved" ? "text-primary" : "text-gray-700"}`}
           >
             Not Approved
           </button>
@@ -58,12 +62,7 @@ const Comments = () => {
                 return comment.isApproved === false;
               })
               .map((comment, index) => (
-                <CommentTableItem
-                  key={comment._id}
-                  comment={comment}
-                  index={index + 1}
-                  fetchComments={fetchComments}
-                />
+                <CommentTableItem key={comment._id} comment={comment} index={index + 1} fetchComments={fetchComments} />
               ))}
           </tbody>
         </table>
